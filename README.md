@@ -1,73 +1,113 @@
-# React + TypeScript + Vite
+# react-perf-hud
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A plug-and-play React component for capturing live **Core Web Vitals** and diagnostic metrics directly inside any application.
 
-Currently, two official plugins are available:
+[![npm version](https://img.shields.io/npm/v/react-perf-hud.svg)](https://www.npmjs.com/package/react-perf-hud)
+[![license](https://img.shields.io/npm/l/react-perf-hud.svg)](https://github.com/MonaSweataSK/performanceHUD/blob/main/LICENSE)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Development Setup
 
-## React Compiler
+### Prerequisites
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js ≥ 18
+- npm ≥ 9
 
-## Expanding the ESLint configuration
+### Install & Run
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone https://github.com/MonaSweataSK/performanceHUD.git
+cd performanceHUD
+npm install
+npm run dev          # Start the demo app at localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Project Structure
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+performanceHUD/
+├── src/
+│   ├── lib/react-perf-hud/    # 📦 Library source (published to npm)
+│   │   ├── components/        # PerfHud, MetricTile, Sparkline
+│   │   ├── core/              # PerfEngine, metric observers, types
+│   │   ├── styles.css         # Library styles
+│   │   └── index.ts           # Public API exports
+│   ├── App.tsx                # Demo app
+│   └── main.tsx               # Demo entry point
+├── dist-lib/                  # Library build output (git-ignored)
+├── lib-package.json           # package.json template for npm publishes
+├── vite.config.ts             # Demo app Vite config
+├── vite.config.lib.ts         # Library build Vite config
+├── scripts/
+│   └── bump-version.js        # Version bump + commit + tag script
+└── .github/workflows/
+    └── publish.yml            # CI/CD: auto-publish to npm on version tags
+```
+
+---
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start the demo app with HMR |
+| `npm run build:app` | Build the demo app for production |
+| `npm run build:lib` | Build the library → `dist-lib/` |
+| `npm run publish:lib` | Build + publish to npm |
+| `npm run release -- patch` | Bump patch version (bug fix: `1.0.1 → 1.0.2`) |
+| `npm run release -- minor` | Bump minor version (feature: `1.0.2 → 1.1.0`) |
+| `npm run release -- major` | Bump major version (breaking: `1.1.0 → 2.0.0`) |
+| `npm run lint` | Run ESLint |
+
+---
+
+## Release Workflow
+
+### 1. Make your changes and commit
+
+```bash
+git add -A && git commit -m "feat: add new metric"
+```
+
+### 2. Bump version (creates commit + tag automatically)
+
+```bash
+npm run release -- patch     # or minor / major
+```
+
+### 3. Push to GitHub (triggers auto-publish via GitHub Actions)
+
+```bash
+git push origin main --tags
+```
+
+The **GitHub Actions workflow** handles the rest — builds the library and publishes to npm automatically.
+
+### Manual publish (without CI)
+
+```bash
+npm run publish:lib
+```
+
+---
+
+## Configuration
+
+### Two Vite configs
+
+- **`vite.config.ts`** — Demo app config (standard React + Vite)
+- **`vite.config.lib.ts`** — Library build config (outputs ES + CJS bundles, generates `.d.ts` types, externalizes React/ReactDOM)
+
+### Two package.json files
+
+- **`package.json`** — Root project (dev dependencies, scripts)
+- **`lib-package.json`** — Template copied into `dist-lib/` during build (this is what gets published to npm)
+
+> **Important:** When bumping versions, update `lib-package.json` (or use `npm run release`). The bump script keeps both files in sync.
+
+---
+
+## License
+
+MIT © [MonaSweataSK](https://github.com/MonaSweataSK)

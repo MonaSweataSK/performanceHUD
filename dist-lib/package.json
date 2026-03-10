@@ -1,0 +1,42 @@
+{
+  "name": "react-perf-hud",
+  "version": "1.0.0",
+  "description": "A plug-and-play React component for capturing live Core Web Vitals and diagnostic metrics directly inside any application.",
+  "main": "index.cjs.js",
+  "module": "index.es.js",
+  "types": "types/index.d.ts",
+  "style": "styles.css",
+  "exports": {
+    ".": {
+      "import": "./index.es.js",
+      "require": "./index.cjs.js",
+      "types": "./types/index.d.ts"
+    },
+    "./styles.css": "./styles.css"
+  },
+  "files": [
+    "index.cjs.js",
+    "index.es.js",
+    "styles.css",
+    "types"
+  ],
+  "peerDependencies": {
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0"
+  },
+  "dependencies": {
+    "web-vitals": "^4.2.0"
+  },
+  "keywords": [
+    "react",
+    "performance",
+    "core-web-vitals",
+    "lighthouse",
+    "metrics",
+    "lcp",
+    "inp",
+    "cls"
+  ],
+  "author": "",
+  "license": "MIT"
+}

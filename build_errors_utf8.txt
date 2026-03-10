@@ -1,0 +1,20 @@
+﻿src/lib/react-perf-hud/core/engine.ts(2,10): error TS1484: 'MetricId' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/lib/react-perf-hud/core/engine.ts(2,20): error TS1484: 'Rating' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/lib/react-perf-hud/core/engine.ts(2,20): error TS6133: 'Rating' is declared but its value is never read.
+src/lib/react-perf-hud/core/engine.ts(2,28): error TS1484: 'VitalPayload' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/lib/react-perf-hud/core/metrics/cls.ts(2,10): error TS1484: 'MetricDefinition' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/lib/react-perf-hud/core/metrics/fcp.ts(1,10): error TS1484: 'MetricDefinition' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/lib/react-perf-hud/core/metrics/fcp.ts(2,1): error TS6133: 'getRating' is declared but its value is never read.
+src/lib/react-perf-hud/core/metrics/inp.ts(2,10): error TS1484: 'MetricDefinition' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/lib/react-perf-hud/core/metrics/lcp.ts(2,10): error TS1484: 'MetricDefinition' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/lib/react-perf-hud/core/metrics/lcp.ts(10,9): error TS6133: 'unobserve' is declared but its value is never read.
+src/lib/react-perf-hud/core/metrics/memory.ts(1,10): error TS1484: 'MetricDefinition' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/lib/react-perf-hud/core/metrics/tbt.ts(1,10): error TS1484: 'MetricDefinition' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/lib/react-perf-hud/core/metrics/ttfb.ts(2,10): error TS1484: 'MetricDefinition' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/lib/react-perf-hud/core/registry.ts(8,10): error TS1484: 'MetricDefinition' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/lib/react-perf-hud/core/registry.ts(8,28): error TS1484: 'MetricId' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/lib/react-perf-hud/core/utils.ts(1,10): error TS1484: 'MetricDefinition' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/lib/react-perf-hud/core/utils.ts(1,10): error TS6133: 'MetricDefinition' is declared but its value is never read.
+src/lib/react-perf-hud/core/utils.ts(1,28): error TS1484: 'VitalPayload' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/lib/react-perf-hud/core/utils.ts(1,28): error TS6133: 'VitalPayload' is declared but its value is never read.
+src/lib/react-perf-hud/core/utils.ts(1,42): error TS1484: 'Rating' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.

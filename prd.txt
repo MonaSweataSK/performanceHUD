@@ -1,0 +1,366 @@
+react-perf-hud  |  Product Requirements Document  |  SWOT-Refined Page 1 
+P R O D U C T  R E Q U I R E M E N T S  D O C U M E N T  
+react-perf-hud 
+Real-Time Frontend Performance HUD 
+A plug-and-play React component for capturing live Core Web Vitals and diagnostic metrics directly 
+inside any application — where Lighthouse cannot reach. 
+ 
+Field Value 
+Document Version 1.0  (SWOT-Refined) 
+Status Draft — Ready for Engineering Review 
+Product Type Open-Source npm Package 
+Primary Package react-perf-hud 
+Target Audience React developers, frontend engineers, QA teams 
+Target Environments Development · Staging · CI pipelines 
+Estimated Delivery 8 weeks (4 phases, 2 weeks each) 
+ 
+ 
+1. Executive Summary 
+Lighthouse and similar lab tools are synthetic — they simulate a page load in a controlled 
+environment. They cannot capture what happens when a real user scrolls, clicks, or navigates 
+between routes in a live React application. This is the gap react-perf-hud fills. 
+ 
+react-perf-hud is a draggable, in-app HUD component that attaches PerformanceObserver listeners 
+to the live browser session and surfaces Core Web Vitals (LCP, INP, CLS) alongside diagnostic 
+signals (FCP, TTFB, TBT) in real time. It is designed as a zero-config import that disappears 
+completely from production builds. 
+ 
+The SWOT analysis identified five strategic priorities that directly shape this PRD: 
+• Leverage the real-user visibility gap as the primary value proposition (Strength S1) 
+• Resolve browser compatibility silently and honestly — no false metrics (Weakness W2) 
+• Make production safety non-negotiable, not a footnote (Weakness W1) 
+• Design the beacon schema upfront so this can grow into a lightweight RUM tool (Opportunity 
+O3) 
+• Build a pluggable metric registry to survive CWV spec churn (Threat T3) 
+react-perf-hud  |  Product Requirements Document  |  SWOT-Refined Page 2 
+ 
+ 
+2. Problem Statement 
+2.1  The Lab vs. Field Divide 
+Lab tools such as Lighthouse, WebPageTest, and Chrome DevTools Performance panel measure a 
+synthetic, reproducible page load. They are invaluable for auditing but structurally incapable of 
+capturing: 
+• INP (Interaction to Next Paint) on real user gestures within complex component trees 
+• CLS accumulation across SPA route transitions and lazy-loaded content 
+• LCP for content rendered after hydration or after API calls resolve 
+• Long-task blocking time under real CPU contention, not simulated throttle 
+ 
+Field data from tools like Google Search Console represents aggregated RUM but is delayed by 
+days and provides no in-session debugging capability. 
+2.2  The Developer Experience Gap 
+There is no first-class React-native tool that lets a developer drop one component into a staging 
+environment and immediately see live vitals alongside the UI they are testing. Existing options 
+require: 
+• Chrome extension installs (not portable, not reproducible in CI) 
+• Manual PerformanceObserver scripting with no visualisation 
+• Full RUM platform integration (Datadog, New Relic) — expensive and complex for early-stage 
+debugging 
+ 
+ 
+3. Goals & Non-Goals 
+3.1  Goals 
+• Provide real-time, in-session Core Web Vitals with Good/Needs Improvement/Poor ratings 
+embedded in the UI 
+• Require exactly one line of JSX to enable — no configuration mandatory 
+• Guarantee zero production bundle impact through build-time elimination 
+• Support optional beaconing of metric data to any analytics endpoint 
+• Degrade gracefully and honestly on non-Chromium browsers 
+• Architect the metric system to be extensible as CWV specs evolve 
+3.2  Non-Goals 
+• This is NOT a replacement for full RUM platforms (Datadog, New Relic, SpeedCurve) 
+• This is NOT a server-side performance tool — it operates in the browser only 
+• This is NOT designed for production end-user exposure — only dev/staging/CI 
+react-perf-hud  |  Product Requirements Document  |  SWOT-Refined Page 3 
+• This does NOT provide historical trend analysis or p75/p99 aggregation out of the box 
+ 
+ 
+4. Target Users 
+User Primary Need 
+Frontend Developer See live CWV while developing a feature in the browser, no setup 
+QA Engineer Validate that a release candidate meets CWV thresholds before shipping 
+Performance Engineer Correlate specific user interactions with INP regressions in staging 
+DevOps / CI Fail a PR build if a measured metric crosses a configured budget 
+threshold 
+Library Author Embed the HUD in a component playground to prove performance of 
+their library 
+ 
+ 
+5. Metrics Specification 
+SWOT Basis: S1, S4 — Real-user advantage; W2 — Browser support honesty; T3 — Spec churn resilience; T4 — 
+Timing API restrictions 
+5.1  Core Web Vitals (Primary) 
+Metric Full Name Good Threshold Poor Threshold 
+LCP Largest Contentful Paint ≤ 2.5 s > 4.0 s 
+INP Interaction to Next Paint ≤ 200 ms > 500 ms 
+CLS Cumulative Layout Shift ≤ 0.1 > 0.25 
+ 
+CWV thresholds are stored in a versioned configuration file (vitals.config.ts). A monthly CI job 
+checks web.dev/metrics for changes and opens a PR if thresholds drift, resolving the spec churn 
+threat identified in the SWOT analysis. 
+5.2  Diagnostic Metrics (Secondary) 
+Metric Full Name Observer API Notes 
+FCP First Contentful Paint PerformanceObserver 
+paint 
+Available Chrome, Firefox, 
+Safari 
+TTFB Time to First Byte navigation timing Cross-browser via 
+PerformanceNavigationTiming 
+TBT Total Blocking Time longtask observer Chrome only; proxy for main-
+thread blocking 
+Memory JS Heap Usage performance.memory Chrome only, non-standard — 
+clearly labelled EXP 
+react-perf-hud  |  Product Requirements Document  |  SWOT-Refined Page 4 
+5.3  Browser Compatibility Matrix 
+Resolves Weakness W2: missing metrics must never silently show zero. They show '--' with a 
+tooltip. 
+ 
+Metric Chrome/Edge Firefox Safari 
+LCP Full support Not supported Not supported 
+INP Full support Not supported Not supported 
+CLS Full support Not supported Not supported 
+FCP Full support Full support Full support 
+TTFB Full support Full support Full support 
+TBT Full support Not supported Not supported 
+ 
+The HUD displays a browser banner when in Firefox or Safari: 'Some metrics are Chromium-only. 
+Showing available data.' This resolves Weakness W2 without false precision. 
+ 
+ 
+6. Product Features 
+SWOT Basis: S2, S3 — Plug-and-play DX; S3 — Draggable HUD; W5 — Embedded thresholds; O1 — npm 
+publishability 
+6.1  Draggable HUD 
+• Rendered as a fixed-position overlay using a React portal 
+• Drag handle using pointer events, clamped to viewport bounds 
+• Position persisted in sessionStorage so it survives hot reloads 
+• Collapse mode: shrinks to a 40×40 px icon pill when minimised 
+• Supports dark / light / auto themes via CSS custom properties 
+ 
+Visual anatomy of each metric tile: 
+◦ Metric name and current live value 
+◦ Delta indicator (arrow + value change from previous reading) 
+◦ Good / Needs Improvement / Poor badge using official CWV colour coding 
+◦ Inline sparkline of last 20 readings rendered on an HTML canvas 
+6.2  Component API 
+ 
+Prop Type & Default / Description 
+metrics string[]  —  Default: ['LCP','INP','CLS','FCP','TTFB'] 
+position 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'  —  Default: 'bottom-right' 
+theme 'dark' | 'light' | 'auto'  —  Default: 'dark' 
+react-perf-hud  |  Product Requirements Document  |  SWOT-Refined Page 5 
+reportTo string (URL) | (metric: VitalPayload) => void  —  Optional beacon target 
+sampleRate number 0–1  —  Default: 1.0. Throttle beacon frequency for busy staging 
+environments 
+onVital (metric: VitalPayload) => void  —  Raw hook for every metric update 
+budgets Record<MetricId, number>  —  Optional. Highlights metric red if value 
+exceeds budget 
+6.3  Production Safety 
+SWOT Basis: W1 — Accidental production inclusion is the highest-severity weakness 
+Production safety is enforced at three independent layers: 
+• Runtime guard: component returns null immediately if process.env.NODE_ENV === 'production' 
+• Build-time strip: a provided Babel/SWC plugin eliminates all import and JSX references at 
+compile time — zero bytes in the production bundle 
+• Type-level hint: the TypeScript type signature carries a @devOnly JSDoc tag, surfaced as a lint 
+warning by a provided ESLint rule if the component is detected in a non-development import 
+path 
+All three layers are independent so that any single layer is sufficient protection. The Babel plugin is 
+the recommended primary path. 
+6.4  Beacon Payload Schema 
+SWOT Basis: O3 — Bridge to RUM platforms; W3 — No historical aggregation addressed via optional reporting 
+ 
+Field Type & Description 
+metric string — LCP | INP | CLS | FCP | TTFB | TBT 
+value number — Raw value in milliseconds (or unitless for CLS) 
+rating 'good' | 'needs-improvement' | 'poor' 
+delta number — Change from previous observed value 
+navigationType string — navigate | reload | back-forward | prerender 
+sessionId string — UUID v4 generated once per component mount 
+url string — window.location.href at capture time 
+timestamp number — DOMHighResTimeStamp (performance.timeOrigin + 
+entry.startTime) 
+ 
+Delivery uses navigator.sendBeacon when available, falling back to fetch. This ensures beacons 
+survive navigation events. 
+6.5  Analytics Integrations 
+SWOT Basis: O3 — Opportunity to bridge field data to existing platforms 
+• Datadog RUM: dedicated adapter mapping VitalPayload to Datadog custom action schema 
+• PostHog: captureEvent wrapper with metric value as a property 
+react-perf-hud  |  Product Requirements Document  |  SWOT-Refined Page 6 
+• Sentry: Sentry.addBreadcrumb with metric context, plus optional captureMessage on Poor rating 
+• Generic: any URL string passed to reportTo receives a POST with JSON payload 
+ 
+ 
+7. SSR & React Server Component Awareness 
+SWOT Basis: W4 — SSR/RSC blind spots identified in SWOT 
+Client-side PerformanceObserver cannot measure server execution time. The following approach 
+bridges the gap: 
+• TTFB is captured via PerformanceNavigationTiming.responseStart, available on the client but 
+reflecting server response latency 
+• SSR frameworks (Next.js, Remix) may inject Server-Timing response headers. When present, 
+react-perf-hud reads these via a <meta name='server-timing'> tag and surfaces them as 
+supplemental tiles labelled SERVER 
+• Hydration delta is measured by wrapping the first client-side paint after document load — the 
+gap between FCP and TTI serves as a hydration cost proxy 
+• RSC payload delivery time is captured via PerformanceResourceTiming on fetch requests 
+matching /_rsc or __RSC_MANIFEST patterns (configurable via rsaPrefixes prop) 
+ 
+ 
+8. Architecture Overview 
+8.1  Package Structure 
+SWOT Basis: O4 — Framework-agnostic expansion path; T5 — Maintainability 
+Package Purpose 
+react-perf-hud Main consumer package — React component, hooks, and HUD UI 
+@react-perf-hud/core Framework-agnostic observer engine in vanilla TypeScript. Zero React 
+dependency. 
+react-perf-hud/babel Babel plugin for build-time production stripping 
+@react-perf-hud/vue Vue 3 composable adapter (Roadmap — v2) 
+@react-perf-hud/svelte Svelte store adapter (Roadmap — v2) 
+8.2  Pluggable Metric Registry 
+SWOT Basis: T3 — CWV spec churn; T1 — Chrome DevTools parity threat 
+Every metric is defined by a MetricDefinition interface, removing the need to modify core logic when 
+specs change: 
+• id: string — Metric identifier 
+• observe: (cb) => () => void — Sets up and tears down the PerformanceObserver 
+• extract: (entry) => number — Pulls the numeric value from an entry 
+• thresholds: { good: number, poor: number } — Current CWV-aligned values 
+• supportedBrowsers: BrowserSupport — Drives the compatibility matrix and '--' fallback 
+react-perf-hud  |  Product Requirements Document  |  SWOT-Refined Page 7 
+Adding a new metric requires creating one file implementing MetricDefinition and registering it. No 
+changes to the HUD component or core engine. 
+ 
+ 
+9. Delivery Plan 
+Phase Scope Duration SWOT Refs 
+01 — Core 
+Engine 
+MetricDefinition registry, all 6 observers, browser 
+compat matrix, production guards 
+Weeks 1–2 S1, S4, W1, W2, T3, T4 
+02 — HUD 
+Component 
+Draggable overlay, metric tiles, sparklines, CWV 
+badges, all 6 props 
+Weeks 3–4 S2, S3, W5, O1 
+03 — 
+Reporting 
+Beacon schema, sendBeacon delivery, 
+Datadog/PostHog/Sentry adapters, SSR 
+bridging 
+Weeks 5–6 O2, O3, W3, W4 
+04 — 
+Ecosystem 
+Babel plugin, monorepo setup, monthly spec-
+check CI, JSDoc + README, npm publish 
+Weeks 7–8 T1, T3, T5, O4 
+ 
+ 
+10. Risks & Mitigations 
+Risk Source Severity Mitigation 
+INP/LCP not 
+available in 
+Safari/Firefox 
+W2, T4 Medium Show '--' with tooltip; browser banner; document clearly in 
+README 
+Accidentally shipped 
+to production 
+W1 High Three independent guards: runtime, build-time strip, lint 
+rule 
+CWV thresholds 
+change (spec churn) 
+T3 Medium Versioned vitals.config.ts; monthly CI check against 
+web.dev/metrics 
+Chrome DevTools 
+gains in-app overlay 
+T1 Low DX differentiation: one-import, portable, beaconable — 
+DevTools cannot beacon or embed in code 
+Timing API precision 
+reduced by 
+browsers 
+T4 Low Use only APIs already available; document known 
+precision limits 
+Package abandoned 
+/ unmaintained 
+T5 Medium Pluggable registry lowers maintenance surface; contributor 
+guide from day one 
+ 
+ 
+11. Success Metrics 
+Metric Target 
+react-perf-hud  |  Product Requirements Document  |  SWOT-Refined Page 8 
+npm weekly downloads at 3 
+months 
+> 1,000 / week 
+GitHub Stars at 3 months > 500 
+Bundle size (production, 
+stripped) 
+0 bytes — verified by size-limit CI check 
+Bundle size (development, 
+minified) 
+< 12 KB gzipped 
+Time-to-first-metric after mount < 100 ms on Chromium 
+TypeScript type coverage 100% — no any types in public API 
+Supported React versions React 17, 18, 19 
+Open issues > 30 days 0 — SLA enforced by maintainer policy 
+ 
+ 
+12. Open Questions 
+The following decisions require team alignment before Phase 01 begins: 
+• Should budgets prop accept absolute values or percentile targets (p75)? Absolute is simpler; 
+percentiles require a data aggregation layer not in scope for v1. 
+• Should the HUD be draggable by default or locked by default? Draggable by default feels more 
+useful but adds pointer-event complexity. Consider locked default with a drag prop. 
+• Should @react-perf-hud/core be a peer dependency or bundled? Bundling simplifies the install; 
+a peer dependency enables tree-shaking for consumers who only want the observer engine. 
+• Should the AI recommendations layer (Opportunity O5) be scoped into v1 as a static rule engine, 
+or deferred entirely to v2? Static rules (no external API call) add value with low complexity. 
+ 
+ 
+Appendix: SWOT Summary Reference 
+This PRD was directly shaped by the SWOT analysis conducted prior to specification. Each section 
+references the specific findings that drove the decision. 
+ 
+SWOT Finding PRD Response 
+S1: Real-user visibility gap 
+vs. Lighthouse 
+Positioned as the primary value proposition in §1, §2 
+S4: PerformanceObserver 
+native API 
+Core engine design in §8.2 — observer-per-metric registry 
+W1: Accidental production 
+inclusion 
+Three-layer production safety system in §6.3 
+W2: Browser API support 
+gaps 
+Compatibility matrix in §5.3; honest '--' fallback; browser banner 
+react-perf-hud  |  Product Requirements Document  |  SWOT-Refined Page 9 
+W3: No historical 
+aggregation 
+Optional beacon schema in §6.4 — leaves door open without requiring 
+it 
+W4: SSR/RSC blind spots Bridging approach via Server-Timing headers and hydration delta in §7 
+W5: Metric interpretation 
+burden 
+CWV threshold badges embedded in every tile — §6.1 
+O1: npm open source 
+package 
+Monorepo package structure in §8.1; npm publish in Phase 04 
+O3: Backend beacon 
+integration 
+reportTo prop + VitalPayload schema + analytics adapters in §6.4, 
+§6.5 
+O4: Framework-agnostic 
+expansion 
+@react-perf-hud/core as standalone vanilla package in §8.1 
+T1: Chrome DevTools parity 
+threat 
+DX differentiation: portable, beaconable, embeddable in code 
+T3: CWV metric spec churn Pluggable MetricDefinition interface + monthly CI threshold check in 
+§8.2 
+T4: Timing API security 
+restrictions 
+Only uses stable, widely-supported APIs; documents precision limits 
+T5: Abandoned 
+maintenance risk 
+Contributor guide, pluggable architecture reducing maintenance 
+surface 
+ 

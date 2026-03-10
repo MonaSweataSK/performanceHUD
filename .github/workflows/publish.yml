@@ -31,6 +31,6 @@ jobs:
         run: npm run build:lib
 
       - name: Publish to npm
-        run: npm publish ./dist-lib --access public --provenance
+        run: cd dist-lib && npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

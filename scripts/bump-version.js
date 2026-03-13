@@ -21,6 +21,15 @@ if (!['patch', 'minor', 'major'].includes(type)) {
   process.exit(1);
 }
 
+// Staged changes check and pre-commit
+try {
+  // Check if there are staged changes (returns non-zero if there are)
+  execSync('git diff --cached --quiet', { cwd: root });
+} catch (e) {
+  console.log('📝 Committing staged changes before release...');
+  execSync('git commit -m "chore: pre-release updates"', { cwd: root, stdio: 'inherit' });
+}
+
 // Read current version from lib-package.json (source of truth)
 const libPkgPath = resolve(root, 'lib-package.json');
 const rootPkgPath = resolve(root, 'package.json');
@@ -44,7 +53,7 @@ writeFileSync(rootPkgPath, JSON.stringify(rootPkg, null, 2) + '\n');
 
 console.log(`\n📦 Version bumped: ${major}.${minor}.${patch} → ${newVersion}\n`);
 
-// Stage, commit, and tag
+// Stage, commit, and tag the release
 execSync('git add .', { cwd: root, stdio: 'inherit' });
 execSync(`git commit -m "release: v${newVersion}"`, { cwd: root, stdio: 'inherit' });
 execSync(`git tag v${newVersion}`, { cwd: root, stdio: 'inherit' });

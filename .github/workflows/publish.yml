@@ -3,6 +3,8 @@ name: Publish to npm
 # Trigger: when you push a version tag like v1.0.1
 on:
   push:
+    branches:
+      - master
     tags:
       - 'v*'
 

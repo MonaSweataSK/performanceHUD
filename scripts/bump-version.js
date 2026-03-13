@@ -45,9 +45,9 @@ writeFileSync(rootPkgPath, JSON.stringify(rootPkg, null, 2) + '\n');
 console.log(`\n📦 Version bumped: ${major}.${minor}.${patch} → ${newVersion}\n`);
 
 // Stage, commit, and tag
-execSync('git add package.json lib-package.json', { cwd: root, stdio: 'inherit' });
+execSync('git add .', { cwd: root, stdio: 'inherit' });
 execSync(`git commit -m "release: v${newVersion}"`, { cwd: root, stdio: 'inherit' });
 execSync(`git tag v${newVersion}`, { cwd: root, stdio: 'inherit' });
 
 console.log(`\n✅ Tagged v${newVersion}`);
-console.log(`\n👉 Run this to publish:\n   git push origin main --tags\n`);
+console.log(`\n👉 Run this to publish:\n   git push origin master --tags\n`);

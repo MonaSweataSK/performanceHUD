@@ -93,8 +93,8 @@ import type { VitalPayload, MetricId, Rating } from 'react-perf-hud';
 ## Contributors
 
 - [MonaSweataSK](https://github.com/MonaSweataSK)
-- [Elayaraman](https://github.com/Elayaraman)
+- [Elayaraman Ramalingam](https://github.com/Elayaraman)
 
 ## License
 
-MIT © [MonaSweataSK](https://github.com/MonaSweataSK)
+MIT © [MonaSweataSK](https://github.com/MonaSweataSK) & [Elayaraman Ramalingam](https://github.com/Elayaraman)

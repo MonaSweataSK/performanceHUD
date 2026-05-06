@@ -18,7 +18,7 @@ A plug-and-play React component for capturing live **Core Web Vitals** and diagn
 git clone https://github.com/MonaSweataSK/performanceHUD.git
 cd performanceHUD
 npm install
-npm run dev          # Start the demo app with HMR at localhost:5173
+npm run dev          # Start the demo app at localhost:5173
 ```
 
 ---
@@ -111,8 +111,8 @@ npm run publish:lib
 ## Contributors
 
 - [MonaSweataSK](https://github.com/MonaSweataSK)
-- [Elayaraman](https://github.com/Elayaraman)
+- [Elayaraman Ramalingam](https://github.com/Elayaraman)
 
 ## License
 
-MIT © [MonaSweataSK](https://github.com/MonaSweataSK)
+MIT © [MonaSweataSK](https://github.com/MonaSweataSK) & [Elayaraman Ramalingam](https://github.com/Elayaraman)

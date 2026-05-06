@@ -1,6 +1,6 @@
 {
   "name": "react-perf-hud",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "A plug-and-play React component for capturing live Core Web Vitals and diagnostic metrics directly inside any application.",
   "main": "index.cjs.js",
   "module": "index.es.js",
@@ -42,8 +42,15 @@
   ],
   "author": "MonaSweataSK",
   "contributors": [
-    { "name": "MonaSweataSK", "url": "https://github.com/MonaSweataSK" },
-    { "name": "Elayaraman Ramalingam", "email": "elayaraman007@gmail.com", "url": "https://github.com/Elayaraman" }
+    {
+      "name": "MonaSweataSK",
+      "url": "https://github.com/MonaSweataSK"
+    },
+    {
+      "name": "Elayaraman Ramalingam",
+      "email": "elayaraman007@gmail.com",
+      "url": "https://github.com/Elayaraman"
+    }
   ],
   "repository": {
     "type": "git",
